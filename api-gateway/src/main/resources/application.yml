@@ -1,0 +1,39 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: false
+          routes:
+            - id: booking-service-auth
+              uri: lb://booking-service
+              predicates:
+                - Path=/user/register,/user/auth
+            - id: booking-service-users
+              uri: lb://booking-service
+              predicates:
+                - Path=/user,/user/**
+            - id: booking-service-bookings
+              uri: lb://booking-service
+              predicates:
+                - Path=/booking,/booking/**,/bookings,/bookings/**
+            - id: hotel-service-public
+              uri: lb://hotel-service
+              predicates:
+                - Path=/api/hotels,/api/hotels/**,/api/rooms,/api/rooms/recommend
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
